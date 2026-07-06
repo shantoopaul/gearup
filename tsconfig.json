@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    // File Layout
+    "outDir": "./dist",
+    // Environment Settings
+    "module": "esnext",
+    "target": "esnext",
+    "lib": [
+      "esnext"
+    ],
+    "types": [
+      "node"
+    ],
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    // Recommended Options
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node-modules",
+    "dist",
+    "generated/prisma"
+  ]
+}
