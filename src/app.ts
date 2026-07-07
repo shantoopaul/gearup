@@ -1,5 +1,6 @@
 import cookieParser from 'cookie-parser';
-import express, { type Application, type Request, type Response } from 'express';
+import express from 'express';
+import type { Application, Request, Response } from 'express';
 import cors from 'cors';
 import config from './config';
 import notFound from './middlewares/notFound';
