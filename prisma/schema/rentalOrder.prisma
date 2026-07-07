@@ -15,6 +15,7 @@ model RentalOrder {
   gearItem   GearItem @relation(fields: [gearItemId], references: [id])
 
   payment Payment?
+  reviews Review?
 
   @@map("rental_orders")
 }
