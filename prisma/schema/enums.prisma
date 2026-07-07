@@ -17,3 +17,14 @@ enum RentalStatus {
   RETURNED
   CANCELLED
 }
+
+enum PaymentMethod {
+  STRIPE
+  SSLCOMMERZ
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
