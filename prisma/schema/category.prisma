@@ -1,10 +1,10 @@
 model Category {
-    id        String   @id @default(uuid())
-    name      String   @unique
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    gearItems GearItem[]
+  gearItems GearItem[]
 
-    @@map("categories")
+  @@map("categories")
 }

@@ -1,20 +1,20 @@
 model GearItem {
-    id          String   @id @default(uuid())
-    title       String
-    description String
-    brand       String
-    pricePerDay Decimal  @db.Decimal(10, 2)
-    quantity    Int      @default(1)
-    isAvailable Boolean  @default(true)
-    images      String[]
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  brand       String
+  pricePerDay Decimal  @db.Decimal(10, 2)
+  quantity    Int      @default(1)
+  isAvailable Boolean  @default(true)
+  images      String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-    providerId String
-    provider   User   @relation(fields: [providerId], references: [id])
+  providerId String
+  provider   User   @relation(fields: [providerId], references: [id])
 
-    categoryId String
-    category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
 
-    @@map("gear_items")
+  @@map("gear_items")
 }
