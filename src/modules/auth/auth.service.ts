@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import config from '../../config';
 import { prisma } from '../../lib/prisma';
-import { generateToken } from '../../utils/jwt';
+import { generateToken, verifyToken } from '../../utils/jwt';
 import type { IRegisterUser, ILoginUser } from './auth.interface';
 
 const registerUserIntoDB = async (payload: IRegisterUser) => {
@@ -55,14 +55,23 @@ const loginUserFromDB = async (payload: ILoginUser) => {
         throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid email or password');
     }
 
+    const jwtPayload = { userId: user.id, role: user.role };
+
     const accessToken = generateToken(
-        { userId: user.id, role: user.role },
+        jwtPayload,
         config.jwt_access_secret!,
         config.jwt_access_expires_in
     );
 
+    const refreshToken = generateToken(
+        jwtPayload,
+        config.jwt_refresh_secret!,
+        config.jwt_refresh_expires_in
+    );
+
     return {
         accessToken,
+        refreshToken,
         user: {
             id: user.id,
             name: user.name,
@@ -71,6 +80,36 @@ const loginUserFromDB = async (payload: ILoginUser) => {
             status: user.status,
         },
     };
+};
+
+const refreshTokenFromDB = async (token: string) => {
+    let decoded;
+
+    try {
+        decoded = verifyToken(token, config.jwt_refresh_secret!);
+    } catch {
+        throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid or expired refresh token');
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+    });
+
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
+
+    if (user.status === 'SUSPENDED') {
+        throw new AppError(httpStatus.FORBIDDEN, 'Your account has been suspended');
+    }
+
+    const accessToken = generateToken(
+        { userId: user.id, role: user.role },
+        config.jwt_access_secret!,
+        config.jwt_access_expires_in
+    );
+
+    return { accessToken };
 };
 
 const getUserFromDB = async (userId: string) => {
@@ -96,6 +135,7 @@ const getUserFromDB = async (userId: string) => {
 const authService = {
     registerUserIntoDB,
     loginUserFromDB,
+    refreshTokenFromDB,
     getUserFromDB,
 };
 
