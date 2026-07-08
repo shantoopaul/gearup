@@ -9,8 +9,16 @@ const registerUserValidationSchema = z.object({
     }),
 });
 
+const loginUserValidationSchema = z.object({
+    body: z.object({
+        email: z.email({ error: 'A valid email is required' }),
+        password: z.string({ error: 'Password is required' }).min(1, 'Password is required'),
+    }),
+});
+
 const authValidation = {
     registerUserValidationSchema,
+    loginUserValidationSchema,
 };
 
 export default authValidation;
