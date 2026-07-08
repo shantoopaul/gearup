@@ -13,4 +13,8 @@ router.post(
     rentalController.createRentalOrder
 );
 
+router.get('/', auth(), rentalController.getUserRentalOrders);
+
+router.get('/:id', auth(), rentalController.getSingleRentalOrder);
+
 export default router;

@@ -46,8 +46,68 @@ const createRentalOrderIntoDB = async (payload: ICreateRentalOrder, customerId: 
     return rentalOrder;
 };
 
+const getUserRentalOrdersFromDB = async (userId: string, role: string) => {
+    if (role === 'ADMIN') {
+        return prisma.rentalOrder.findMany({
+            include: {
+                gearItem: true,
+                payment: true,
+                customer: { select: { id: true, name: true, email: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    if (role === 'PROVIDER') {
+        return prisma.rentalOrder.findMany({
+            where: { gearItem: { providerId: userId } },
+            include: {
+                gearItem: true,
+                payment: true,
+                customer: { select: { id: true, name: true, email: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    return prisma.rentalOrder.findMany({
+        where: { customerId: userId },
+        include: {
+            gearItem: true,
+            payment: true,
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+};
+
+const getSingleRentalOrderFromDB = async (id: string, userId: string, role: string) => {
+    const rentalOrder = await prisma.rentalOrder.findUnique({
+        where: { id },
+        include: {
+            gearItem: true,
+            payment: true,
+            customer: { select: { id: true, name: true, email: true } },
+        },
+    });
+
+    if (!rentalOrder) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Rental order not found');
+    }
+
+    const isOwner = rentalOrder.customerId === userId;
+    const isProvider = rentalOrder.gearItem.providerId === userId;
+
+    if (role !== 'ADMIN' && !isOwner && !isProvider) {
+        throw new AppError(httpStatus.FORBIDDEN, 'You do not have permission to view this rental order');
+    }
+
+    return rentalOrder;
+};
+
 const rentalService = {
     createRentalOrderIntoDB,
+    getUserRentalOrdersFromDB,
+    getSingleRentalOrderFromDB,
 };
 
 export default rentalService;
