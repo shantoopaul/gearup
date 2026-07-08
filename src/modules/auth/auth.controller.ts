@@ -6,7 +6,7 @@ import sendResponse from '../../utils/sendResponse';
 import config from '../../config';
 import authService from './auth.service';
 
-const registerUser: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+const register: RequestHandler = catchAsync(async (req: Request, res: Response) => {
     const result = await authService.registerUserIntoDB(req.body);
 
     sendResponse(res, {
@@ -16,7 +16,7 @@ const registerUser: RequestHandler = catchAsync(async (req: Request, res: Respon
     });
 });
 
-const loginUser: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+const login: RequestHandler = catchAsync(async (req: Request, res: Response) => {
     const result = await authService.loginUserFromDB(req.body);
     const { refreshToken, ...responseData } = result;
 
@@ -61,8 +61,8 @@ const getUser: RequestHandler = catchAsync(async (req: Request, res: Response) =
 });
 
 const authController = {
-    registerUser,
-    loginUser,
+    register,
+    login,
     refreshToken,
     getUser,
 };

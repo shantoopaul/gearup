@@ -8,14 +8,14 @@ const router = Router();
 
 router.post(
     '/register',
-    validateRequest(authValidation.registerUserValidationSchema),
-    authController.registerUser
+    validateRequest(authValidation.registerValidation),
+    authController.register
 );
 
 router.post(
     '/login',
-    validateRequest(authValidation.loginUserValidationSchema),
-    authController.loginUser
+    validateRequest(authValidation.loginValidation),
+    authController.login
 );
 
 router.post('/refresh-token', authController.refreshToken);

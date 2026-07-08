@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const createCategoryValidationSchema = z.object({
+const createCategoryValidation = z.object({
     body: z.object({
         name: z.string({ error: 'Name is required' })
             .min(2, 'Name must be at least 2 characters')
@@ -9,7 +9,7 @@ const createCategoryValidationSchema = z.object({
 });
 
 const categoryValidation = {
-    createCategoryValidationSchema,
+    createCategoryValidation,
 };
 
 export default categoryValidation;

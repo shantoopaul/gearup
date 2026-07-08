@@ -4,9 +4,9 @@ import AppError from '../../errors/AppError';
 import config from '../../config';
 import { prisma } from '../../lib/prisma';
 import { generateToken, verifyToken } from '../../utils/jwt';
-import type { IRegisterUser, ILoginUser } from './auth.interface';
+import type { IRegister, ILogin } from './auth.interface';
 
-const registerUserIntoDB = async (payload: IRegisterUser) => {
+const registerUserIntoDB = async (payload: IRegister) => {
     const existingUser = await prisma.user.findUnique({
         where: { email: payload.email },
     });
@@ -36,7 +36,7 @@ const registerUserIntoDB = async (payload: IRegisterUser) => {
     return user;
 };
 
-const loginUserFromDB = async (payload: ILoginUser) => {
+const loginUserFromDB = async (payload: ILogin) => {
     const user = await prisma.user.findUnique({
         where: { email: payload.email },
     });

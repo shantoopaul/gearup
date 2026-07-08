@@ -1,4 +1,4 @@
-export interface ICreateRentalOrder {
+export interface ICreateRental {
     gearItemId: string;
     startDate: string;
     endDate: string;

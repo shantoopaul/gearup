@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const createRentalOrderValidationSchema = z.object({
+const createRentalValidation = z.object({
     body: z.object({
         gearItemId: z.uuid({ error: 'Valid gearItemId is required' }),
         startDate: z.iso.datetime({ error: 'Valid startDate (ISO 8601) is required' }),
@@ -13,7 +13,7 @@ const createRentalOrderValidationSchema = z.object({
 });
 
 const rentalValidation = {
-    createRentalOrderValidationSchema,
+    createRentalValidation,
 };
 
 export default rentalValidation;

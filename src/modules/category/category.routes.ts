@@ -11,7 +11,7 @@ router.get('/', categoryController.getAllCategories);
 router.post(
     '/',
     auth('ADMIN'),
-    validateRequest(categoryValidation.createCategoryValidationSchema),
+    validateRequest(categoryValidation.createCategoryValidation),
     categoryController.createCategory
 );
 

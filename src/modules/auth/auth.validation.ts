@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const registerUserValidationSchema = z.object({
+const registerValidation = z.object({
     body: z.object({
         name: z.string({ error: 'Name is required' })
             .min(2, 'Name must be at least 2 characters')
@@ -15,7 +15,7 @@ const registerUserValidationSchema = z.object({
     }),
 });
 
-const loginUserValidationSchema = z.object({
+const loginValidation = z.object({
     body: z.object({
         email: z.email({ error: 'Email is required' }),
         password: z.string({ error: 'Password is required' })
@@ -24,8 +24,8 @@ const loginUserValidationSchema = z.object({
 });
 
 const authValidation = {
-    registerUserValidationSchema,
-    loginUserValidationSchema,
+    registerValidation,
+    loginValidation,
 };
 
 export default authValidation;

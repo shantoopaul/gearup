@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const createGearValidationSchema = z.object({
+const createGearValidation = z.object({
     body: z.object({
         title: z.string({ error: 'Title is required' })
             .min(2, 'Title must be at least 2 characters')
@@ -21,7 +21,7 @@ const createGearValidationSchema = z.object({
 });
 
 const gearValidation = {
-    createGearValidationSchema,
+    createGearValidation,
 };
 
 export default gearValidation;

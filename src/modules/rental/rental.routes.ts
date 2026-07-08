@@ -9,12 +9,12 @@ const router = Router();
 router.post(
     '/',
     auth('CUSTOMER'),
-    validateRequest(rentalValidation.createRentalOrderValidationSchema),
-    rentalController.createRentalOrder
+    validateRequest(rentalValidation.createRentalValidation),
+    rentalController.createRental
 );
 
-router.get('/', auth(), rentalController.getUserRentalOrders);
+router.get('/', auth(), rentalController.getUserRentals);
 
-router.get('/:id', auth(), rentalController.getSingleRentalOrder);
+router.get('/:id', auth(), rentalController.getSingleRental);
 
 export default router;

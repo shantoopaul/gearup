@@ -1,9 +1,9 @@
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { prisma } from '../../lib/prisma';
-import type { ICreateRentalOrder } from './rental.interface';
+import type { ICreateRental } from './rental.interface';
 
-const createRentalOrderIntoDB = async (payload: ICreateRentalOrder, customerId: string) => {
+const createRentalIntoDB = async (payload: ICreateRental, customerId: string) => {
     const { gearItemId, startDate, endDate, quantity = 1 } = payload;
 
     const gear = await prisma.gearItem.findUnique({
@@ -46,7 +46,7 @@ const createRentalOrderIntoDB = async (payload: ICreateRentalOrder, customerId: 
     return rentalOrder;
 };
 
-const getUserRentalOrdersFromDB = async (userId: string, role: string) => {
+const getUserRentalsFromDB = async (userId: string, role: string) => {
     if (role === 'ADMIN') {
         return prisma.rentalOrder.findMany({
             include: {
@@ -80,8 +80,8 @@ const getUserRentalOrdersFromDB = async (userId: string, role: string) => {
     });
 };
 
-const getSingleRentalOrderFromDB = async (id: string, userId: string, role: string) => {
-    const rentalOrder = await prisma.rentalOrder.findUnique({
+const getSingleRentalFromDB = async (id: string, userId: string, role: string) => {
+    const rental = await prisma.rentalOrder.findUnique({
         where: { id },
         include: {
             gearItem: true,
@@ -90,24 +90,24 @@ const getSingleRentalOrderFromDB = async (id: string, userId: string, role: stri
         },
     });
 
-    if (!rentalOrder) {
+    if (!rental) {
         throw new AppError(httpStatus.NOT_FOUND, 'Rental order not found');
     }
 
-    const isOwner = rentalOrder.customerId === userId;
-    const isProvider = rentalOrder.gearItem.providerId === userId;
+    const isOwner = rental.customerId === userId;
+    const isProvider = rental.gearItem.providerId === userId;
 
     if (role !== 'ADMIN' && !isOwner && !isProvider) {
         throw new AppError(httpStatus.FORBIDDEN, 'You do not have permission to view this rental order');
     }
 
-    return rentalOrder;
+    return rental;
 };
 
 const rentalService = {
-    createRentalOrderIntoDB,
-    getUserRentalOrdersFromDB,
-    getSingleRentalOrderFromDB,
+    createRentalIntoDB,
+    getUserRentalsFromDB,
+    getSingleRentalFromDB,
 };
 
 export default rentalService;

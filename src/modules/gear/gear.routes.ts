@@ -13,7 +13,7 @@ router.get('/:id', gearController.getSingleGear);
 router.post(
     '/',
     auth('PROVIDER'),
-    validateRequest(gearValidation.createGearValidationSchema),
+    validateRequest(gearValidation.createGearValidation),
     gearController.createGear
 );
 

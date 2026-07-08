@@ -4,8 +4,8 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import rentalService from './rental.service';
 
-const createRentalOrder: RequestHandler = catchAsync(async (req: Request, res: Response) => {
-    const result = await rentalService.createRentalOrderIntoDB(req.body, req.user.userId);
+const createRental: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await rentalService.createRentalIntoDB(req.body, req.user.userId);
 
     sendResponse(res, {
         statusCode: httpStatus.CREATED,
@@ -14,8 +14,8 @@ const createRentalOrder: RequestHandler = catchAsync(async (req: Request, res: R
     });
 });
 
-const getUserRentalOrders: RequestHandler = catchAsync(async (req: Request, res: Response) => {
-    const result = await rentalService.getUserRentalOrdersFromDB(req.user.userId, req.user.role);
+const getUserRentals: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await rentalService.getUserRentalsFromDB(req.user.userId, req.user.role);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -24,8 +24,8 @@ const getUserRentalOrders: RequestHandler = catchAsync(async (req: Request, res:
     });
 });
 
-const getSingleRentalOrder: RequestHandler = catchAsync(async (req: Request, res: Response) => {
-    const result = await rentalService.getSingleRentalOrderFromDB(
+const getSingleRental: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await rentalService.getSingleRentalFromDB(
         req.params.id as string,
         req.user.userId,
         req.user.role
@@ -39,9 +39,9 @@ const getSingleRentalOrder: RequestHandler = catchAsync(async (req: Request, res
 });
 
 const rentalController = {
-    createRentalOrder,
-    getUserRentalOrders,
-    getSingleRentalOrder,
+    createRental,
+    getUserRentals,
+    getSingleRental,
 };
 
 export default rentalController;
