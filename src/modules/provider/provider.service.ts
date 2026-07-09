@@ -12,6 +12,20 @@ const allowedTransitions: Record<RentalStatus, RentalStatus[]> = {
     CANCELLED: [],
 };
 
+const getProviderOrdersFromDB = async (providerId: string) => {
+    const orders = await prisma.rentalOrder.findMany({
+        where: { gearItem: { providerId } },
+        include: {
+            gearItem: true,
+            payment: true,
+            customer: { select: { id: true, name: true, email: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+
+    return orders;
+};
+
 const updateOrderStatusInDB = async (id: string, providerId: string, status: RentalStatus) => {
     const rentalOrder = await prisma.rentalOrder.findUnique({
         where: { id },
@@ -42,6 +56,7 @@ const updateOrderStatusInDB = async (id: string, providerId: string, status: Ren
 };
 
 const providerService = {
+    getProviderOrdersFromDB,
     updateOrderStatusInDB,
 };
 

@@ -6,6 +6,8 @@ import auth from '../../middlewares/auth';
 
 const router = Router();
 
+router.get('/', auth('PROVIDER'), providerController.getProviderOrders);
+
 router.patch(
     '/:id',
     auth('PROVIDER'),

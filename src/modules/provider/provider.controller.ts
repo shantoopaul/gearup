@@ -4,6 +4,16 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import providerService from './provider.service';
 
+const getProviderOrders: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await providerService.getProviderOrdersFromDB(req.user.userId);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        message: 'Provider orders retrieved successfully',
+        data: result,
+    });
+});
+
 const updateOrderStatus: RequestHandler = catchAsync(async (req: Request, res: Response) => {
     const result = await providerService.updateOrderStatusInDB(
         req.params.id as string,
@@ -19,6 +29,7 @@ const updateOrderStatus: RequestHandler = catchAsync(async (req: Request, res: R
 });
 
 const providerController = {
+    getProviderOrders,
     updateOrderStatus,
 };
 
