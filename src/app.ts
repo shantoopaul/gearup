@@ -6,6 +6,7 @@ import config from './config';
 import notFound from './middlewares/notFound';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import router from './routes';
+import paymentController from './modules/payment/payment.controller';
 
 const app: Application = express();
 
@@ -13,6 +14,12 @@ app.use(cors({
     origin: config.app_url,
     credentials: true,
 }));
+
+app.post(
+    '/api/payments/webhook',
+    express.raw({ type: 'application/json' }),
+    paymentController.handleWebhook
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

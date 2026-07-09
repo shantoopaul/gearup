@@ -14,8 +14,17 @@ const createPayment: RequestHandler = catchAsync(async (req: Request, res: Respo
     });
 });
 
+const handleWebhook: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const signature = req.headers['stripe-signature'] as string;
+
+    await paymentService.confirmPaymentFromWebhook(req.body, signature);
+
+    res.status(httpStatus.OK).json({ received: true });
+});
+
 const paymentController = {
     createPayment,
+    handleWebhook,
 };
 
 export default paymentController;

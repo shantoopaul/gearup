@@ -4,6 +4,7 @@ import { prisma } from '../../lib/prisma';
 import { stripe } from '../../lib/stripe';
 import config from '../../config';
 import type { ICreatePayment } from './payment.interface';
+import type Stripe from 'stripe';
 
 const createPaymentIntoDB = async (payload: ICreatePayment, customerId: string) => {
     const { rentalOrderId } = payload;
@@ -64,8 +65,42 @@ const createPaymentIntoDB = async (payload: ICreatePayment, customerId: string) 
     return { checkoutUrl: session.url, payment };
 };
 
+const confirmPaymentFromWebhook = async (rawBody: Buffer, signature: string) => {
+    let event: Stripe.Event;
+
+    try {
+        event = stripe.webhooks.constructEvent(rawBody, signature, config.stripe_webhook_secret!);
+    } catch {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Invalid webhook signature');
+    }
+
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object as Stripe.Checkout.Session;
+
+        const payment = await prisma.payment.findUnique({
+            where: { transactionId: session.id },
+        });
+
+        if (!payment || payment.status === 'COMPLETED') {
+            return;
+        }
+
+        await prisma.$transaction([
+            prisma.payment.update({
+                where: { id: payment.id },
+                data: { status: 'COMPLETED', paidAt: new Date() },
+            }),
+            prisma.rentalOrder.update({
+                where: { id: payment.rentalOrderId },
+                data: { status: 'PAID' },
+            }),
+        ]);
+    }
+};
+
 const paymentService = {
     createPaymentIntoDB,
+    confirmPaymentFromWebhook,
 };
 
 export default paymentService;
