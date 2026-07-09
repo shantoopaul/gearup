@@ -22,9 +22,35 @@ const handleWebhook: RequestHandler = catchAsync(async (req: Request, res: Respo
     res.status(httpStatus.OK).json({ received: true });
 });
 
+const getUserPayments: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await paymentService.getUserPaymentsFromDB(req.user.userId, req.user.role);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        message: 'Payments retrieved successfully',
+        data: result,
+    });
+});
+
+const getSinglePayment: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await paymentService.getSinglePaymentFromDB(
+        req.params.id as string,
+        req.user.userId,
+        req.user.role
+    );
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        message: 'Payment retrieved successfully',
+        data: result,
+    });
+});
+
 const paymentController = {
     createPayment,
     handleWebhook,
+    getUserPayments,
+    getSinglePayment,
 };
 
 export default paymentController;

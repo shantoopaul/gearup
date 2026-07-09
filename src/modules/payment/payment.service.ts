@@ -98,9 +98,79 @@ const confirmPaymentFromWebhook = async (rawBody: Buffer, signature: string) => 
     }
 };
 
+const getUserPaymentsFromDB = async (userId: string, role: string) => {
+    if (role === 'ADMIN') {
+        return prisma.payment.findMany({
+            include: {
+                rentalOrder: {
+                    include: {
+                        gearItem: true,
+                        customer: { select: { id: true, name: true, email: true } },
+                    },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    if (role === 'PROVIDER') {
+        return prisma.payment.findMany({
+            where: { rentalOrder: { gearItem: { providerId: userId } } },
+            include: {
+                rentalOrder: {
+                    include: {
+                        gearItem: true,
+                        customer: { select: { id: true, name: true, email: true } },
+                    },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    return prisma.payment.findMany({
+        where: { rentalOrder: { customerId: userId } },
+        include: {
+            rentalOrder: {
+                include: { gearItem: true },
+            },
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+};
+
+const getSinglePaymentFromDB = async (id: string, userId: string, role: string) => {
+    const payment = await prisma.payment.findUnique({
+        where: { id },
+        include: {
+            rentalOrder: {
+                include: {
+                    gearItem: true,
+                    customer: { select: { id: true, name: true, email: true } },
+                },
+            },
+        },
+    });
+
+    if (!payment) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Payment not found');
+    }
+
+    const isOwner = payment.rentalOrder.customerId === userId;
+    const isProvider = payment.rentalOrder.gearItem.providerId === userId;
+
+    if (role !== 'ADMIN' && !isOwner && !isProvider) {
+        throw new AppError(httpStatus.FORBIDDEN, 'You do not have permission to view this payment');
+    }
+
+    return payment;
+};
+
 const paymentService = {
     createPaymentIntoDB,
     confirmPaymentFromWebhook,
+    getUserPaymentsFromDB,
+    getSinglePaymentFromDB,
 };
 
 export default paymentService;

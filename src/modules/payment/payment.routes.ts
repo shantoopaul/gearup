@@ -13,4 +13,8 @@ router.post(
     paymentController.createPayment
 );
 
+router.get('/', auth(), paymentController.getUserPayments);
+
+router.get('/:id', auth(), paymentController.getSinglePayment);
+
 export default router;
