@@ -3,6 +3,7 @@ import authRoutes from '../modules/auth/auth.routes';
 import categoryRoutes from '../modules/category/category.routes';
 import gearRoutes from '../modules/gear/gear.routes';
 import rentalRoutes from '../modules/rental/rental.routes';
+import paymentRoutes from '../modules/payment/payment.routes';
 
 const router = Router();
 
@@ -22,6 +23,10 @@ const moduleRoutes = [
     {
         path: '/rentals',
         route: rentalRoutes,
+    },
+    {
+        path: '/payments',
+        route: paymentRoutes,
     },
 ];
 
