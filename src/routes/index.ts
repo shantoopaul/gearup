@@ -5,6 +5,7 @@ import gearRoutes from '../modules/gear/gear.routes';
 import rentalRoutes from '../modules/rental/rental.routes';
 import paymentRoutes from '../modules/payment/payment.routes';
 import reviewRoutes from '../modules/review/review.routes';
+import providerOrderRoutes from '../modules/provider/provider.routes';
 
 const router = Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
     {
         path: '/reviews',
         route: reviewRoutes,
+    },
+    {
+        path: '/provider/orders',
+        route: providerOrderRoutes,
     },
 ];
 
