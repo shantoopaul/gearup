@@ -15,6 +15,8 @@ router.post(
 
 router.get('/', auth(), rentalController.getUserRentals);
 
+router.patch('/:id/cancel', auth('CUSTOMER'), rentalController.cancelRental);
+
 router.get('/:id', auth(), rentalController.getSingleRental);
 
 export default router;

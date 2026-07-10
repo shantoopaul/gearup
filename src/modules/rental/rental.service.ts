@@ -104,10 +104,39 @@ const getSingleRentalFromDB = async (id: string, userId: string, role: string) =
     return rental;
 };
 
+const cancelRentalInDB = async (id: string, customerId: string) => {
+    const rentalOrder = await prisma.rentalOrder.findUnique({
+        where: { id },
+    });
+
+    if (!rentalOrder) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Rental order not found');
+    }
+
+    if (rentalOrder.customerId !== customerId) {
+        throw new AppError(httpStatus.FORBIDDEN, 'You do not have permission to cancel this rental order');
+    }
+
+    if (rentalOrder.status !== 'PLACED') {
+        throw new AppError(
+            httpStatus.BAD_REQUEST,
+            'Only rental orders that are still PLACED can be cancelled'
+        );
+    }
+
+    const updated = await prisma.rentalOrder.update({
+        where: { id },
+        data: { status: 'CANCELLED' },
+    });
+
+    return updated;
+};
+
 const rentalService = {
     createRentalIntoDB,
     getUserRentalsFromDB,
     getSingleRentalFromDB,
+    cancelRentalInDB,
 };
 
 export default rentalService;

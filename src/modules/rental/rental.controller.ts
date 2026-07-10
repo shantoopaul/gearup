@@ -38,10 +38,21 @@ const getSingleRental: RequestHandler = catchAsync(async (req: Request, res: Res
     });
 });
 
+const cancelRental: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await rentalService.cancelRentalInDB(req.params.id as string, req.user.userId);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        message: 'Rental order cancelled successfully',
+        data: result,
+    });
+});
+
 const rentalController = {
     createRental,
     getUserRentals,
     getSingleRental,
+    cancelRental,
 };
 
 export default rentalController;
