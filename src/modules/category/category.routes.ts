@@ -15,4 +15,17 @@ router.post(
     categoryController.createCategory
 );
 
+router.put(
+    '/:id',
+    auth('ADMIN'),
+    validateRequest(categoryValidation.updateCategoryValidation),
+    categoryController.updateCategory
+);
+
+router.delete(
+    '/:id',
+    auth('ADMIN'),
+    categoryController.deleteCategory
+);
+
 export default router;
