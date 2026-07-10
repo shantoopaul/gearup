@@ -26,8 +26,11 @@ const createPaymentIntoDB = async (payload: ICreatePayment, customerId: string) 
         throw new AppError(httpStatus.CONFLICT, 'A payment already exists for this rental order');
     }
 
-    if (rentalOrder.status !== 'PLACED') {
-        throw new AppError(httpStatus.BAD_REQUEST, 'Payment can only be made for a placed rental order');
+    if (rentalOrder.status !== 'CONFIRMED') {
+        throw new AppError(
+            httpStatus.BAD_REQUEST,
+            'Payment can only be made for a rental order that has been confirmed by the provider'
+        );
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -46,7 +49,7 @@ const createPaymentIntoDB = async (payload: ICreatePayment, customerId: string) 
             },
         ],
         success_url: `${config.app_url}/api/payments/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${config.app_url}/api/payments/cancel`,
+        cancel_url: `${config.app_url}/api/payments/cancel?session_id={CHECKOUT_SESSION_ID}`,
         metadata: {
             rentalOrderId: rentalOrder.id,
         },
@@ -63,6 +66,19 @@ const createPaymentIntoDB = async (payload: ICreatePayment, customerId: string) 
     });
 
     return { checkoutUrl: session.url, payment };
+};
+
+const markPaymentCompleted = async (paymentId: string, rentalOrderId: string) => {
+    await prisma.$transaction([
+        prisma.payment.update({
+            where: { id: paymentId },
+            data: { status: 'COMPLETED', paidAt: new Date() },
+        }),
+        prisma.rentalOrder.update({
+            where: { id: rentalOrderId },
+            data: { status: 'PAID' },
+        }),
+    ]);
 };
 
 const confirmPaymentFromWebhook = async (rawBody: Buffer, signature: string) => {
@@ -85,17 +101,38 @@ const confirmPaymentFromWebhook = async (rawBody: Buffer, signature: string) => 
             return;
         }
 
-        await prisma.$transaction([
-            prisma.payment.update({
-                where: { id: payment.id },
-                data: { status: 'COMPLETED', paidAt: new Date() },
-            }),
-            prisma.rentalOrder.update({
-                where: { id: payment.rentalOrderId },
-                data: { status: 'PAID' },
-            }),
-        ]);
+        await markPaymentCompleted(payment.id, payment.rentalOrderId);
     }
+};
+
+const confirmPaymentBySessionId = async (sessionId: string) => {
+    const payment = await prisma.payment.findUnique({
+        where: { transactionId: sessionId },
+        include: { rentalOrder: { include: { gearItem: true } } },
+    });
+
+    if (!payment) {
+        throw new AppError(httpStatus.NOT_FOUND, 'No payment found for this session');
+    }
+
+    if (payment.status === 'COMPLETED') {
+        return payment;
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status !== 'paid') {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Payment has not been completed yet');
+    }
+
+    await markPaymentCompleted(payment.id, payment.rentalOrderId);
+
+    const updated = await prisma.payment.findUnique({
+        where: { id: payment.id },
+        include: { rentalOrder: true },
+    });
+
+    return updated;
 };
 
 const getUserPaymentsFromDB = async (userId: string, role: string) => {
@@ -169,6 +206,7 @@ const getSinglePaymentFromDB = async (id: string, userId: string, role: string) 
 const paymentService = {
     createPaymentIntoDB,
     confirmPaymentFromWebhook,
+    confirmPaymentBySessionId,
     getUserPaymentsFromDB,
     getSinglePaymentFromDB,
 };

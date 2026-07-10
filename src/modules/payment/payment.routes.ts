@@ -13,6 +13,17 @@ router.post(
     paymentController.createPayment
 );
 
+router.post(
+    '/confirm',
+    auth(),
+    validateRequest(paymentValidation.confirmPaymentValidation),
+    paymentController.confirmPayment
+);
+
+router.get('/success', paymentController.paymentSuccess);
+
+router.get('/cancel', paymentController.paymentCancel);
+
 router.get('/', auth(), paymentController.getUserPayments);
 
 router.get('/:id', auth(), paymentController.getSinglePayment);
