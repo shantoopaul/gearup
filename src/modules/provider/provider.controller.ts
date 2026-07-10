@@ -52,11 +52,24 @@ const updateGear: RequestHandler = catchAsync(async (req: Request, res: Response
     });
 });
 
+const deleteGear: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await providerService.deleteGearFromDB(
+        req.params.id as string,
+        req.user.userId
+    );
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        message: 'Gear deleted successfully',
+        data: result,
+    });
+});
+
 const providerController = {
     createGear,
     getProviderOrders,
     updateOrderStatus,
     updateGear,
+    deleteGear,
 };
-
 export default providerController;

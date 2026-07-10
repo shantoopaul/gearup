@@ -106,11 +106,37 @@ const updateGearInDB = async (id: string, providerId: string, payload: IUpdateGe
     return updated;
 };
 
+const deleteGearFromDB = async (id: string, providerId: string) => {
+    const gear = await prisma.gearItem.findUnique({
+        where: { id },
+    });
+
+    if (!gear) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Gear item not found');
+    }
+
+    if (gear.providerId !== providerId) {
+        throw new AppError(httpStatus.FORBIDDEN, 'You do not have permission to delete this gear item');
+    }
+
+    if (!gear.isAvailable) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'This gear item has already been removed');
+    }
+
+    const deleted = await prisma.gearItem.update({
+        where: { id },
+        data: { isAvailable: false },
+    });
+
+    return deleted;
+};
+
 const providerService = {
     createGearIntoDB,
     getProviderOrdersFromDB,
     updateOrderStatusInDB,
     updateGearInDB,
+    deleteGearFromDB,
 };
 
 export default providerService;

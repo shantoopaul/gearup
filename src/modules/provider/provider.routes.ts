@@ -29,4 +29,6 @@ router.put(
     providerController.updateGear
 );
 
+router.delete('/gear/:id', auth('PROVIDER'), providerController.deleteGear);
+
 export default router;
