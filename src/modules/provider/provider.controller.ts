@@ -28,9 +28,24 @@ const updateOrderStatus: RequestHandler = catchAsync(async (req: Request, res: R
     });
 });
 
+const updateGear: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await providerService.updateGearInDB(
+        req.params.id as string,
+        req.user.userId,
+        req.body
+    );
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        message: 'Gear updated successfully',
+        data: result,
+    });
+});
+
 const providerController = {
     getProviderOrders,
     updateOrderStatus,
+    updateGear,
 };
 
 export default providerController;

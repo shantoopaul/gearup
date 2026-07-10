@@ -6,13 +6,20 @@ import auth from '../../middlewares/auth';
 
 const router = Router();
 
-router.get('/', auth('PROVIDER'), providerController.getProviderOrders);
+router.get('/orders', auth('PROVIDER'), providerController.getProviderOrders);
 
 router.patch(
-    '/:id',
+    '/orders/:id',
     auth('PROVIDER'),
     validateRequest(providerValidation.updateOrderStatusValidation),
     providerController.updateOrderStatus
+);
+
+router.put(
+    '/gear/:id',
+    auth('PROVIDER'),
+    validateRequest(providerValidation.updateGearValidation),
+    providerController.updateGear
 );
 
 export default router;

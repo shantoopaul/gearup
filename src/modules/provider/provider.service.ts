@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { prisma } from '../../lib/prisma';
 import type { RentalStatus } from '../../../generated/prisma/client';
+import type { IUpdateGear } from './provider.interface';
 
 const allowedTransitions: Record<RentalStatus, RentalStatus[]> = {
     PLACED: ['CONFIRMED'],
@@ -55,9 +56,41 @@ const updateOrderStatusInDB = async (id: string, providerId: string, status: Ren
     return updated;
 };
 
+const updateGearInDB = async (id: string, providerId: string, payload: IUpdateGear) => {
+    const gear = await prisma.gearItem.findUnique({
+        where: { id },
+    });
+
+    if (!gear) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Gear item not found');
+    }
+
+    if (gear.providerId !== providerId) {
+        throw new AppError(httpStatus.FORBIDDEN, 'You do not have permission to update this gear item');
+    }
+
+    if (payload.categoryId) {
+        const category = await prisma.category.findUnique({
+            where: { id: payload.categoryId },
+        });
+
+        if (!category) {
+            throw new AppError(httpStatus.NOT_FOUND, 'Category not found');
+        }
+    }
+
+    const updated = await prisma.gearItem.update({
+        where: { id },
+        data: payload,
+    });
+
+    return updated;
+};
+
 const providerService = {
     getProviderOrdersFromDB,
     updateOrderStatusInDB,
+    updateGearInDB,
 };
 
 export default providerService;

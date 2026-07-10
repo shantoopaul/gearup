@@ -35,7 +35,7 @@ const moduleRoutes = [
         route: reviewRoutes,
     },
     {
-        path: '/provider/orders',
+        path: '/provider',
         route: providerOrderRoutes,
     },
 ];
