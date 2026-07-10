@@ -6,6 +6,7 @@ import rentalRoutes from '../modules/rental/rental.routes';
 import paymentRoutes from '../modules/payment/payment.routes';
 import reviewRoutes from '../modules/review/review.routes';
 import providerOrderRoutes from '../modules/provider/provider.routes';
+import adminRoutes from '../modules/admin/admin.routes';
 
 const router = Router();
 
@@ -37,6 +38,10 @@ const moduleRoutes = [
     {
         path: '/provider',
         route: providerOrderRoutes,
+    },
+    {
+        path: '/admin',
+        route: adminRoutes,
     },
 ];
 
