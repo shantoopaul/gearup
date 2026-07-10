@@ -2,29 +2,10 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { prisma } from '../../lib/prisma';
 import type { Prisma } from '../../../generated/prisma/client';
-import type { ICreateGear, IGearFilters } from './gear.interface';
+import type { IGearFilters } from './gear.interface';
 
 const gearSortableFields = ['title', 'brand', 'pricePerDay', 'createdAt'] as const;
 type GearSortableField = (typeof gearSortableFields)[number];
-
-const createGearIntoDB = async (payload: ICreateGear, providerId: string) => {
-    const category = await prisma.category.findUnique({
-        where: { id: payload.categoryId },
-    });
-
-    if (!category) {
-        throw new AppError(httpStatus.NOT_FOUND, 'Category not found');
-    }
-
-    const gear = await prisma.gearItem.create({
-        data: {
-            ...payload,
-            providerId,
-        },
-    });
-
-    return gear;
-};
 
 const getAllGearsFromDB = async (filters: IGearFilters) => {
     const { category, brand, minPrice, maxPrice, search } = filters;
@@ -116,7 +97,6 @@ const getSingleGearFromDB = async (id: string) => {
 };
 
 const gearService = {
-    createGearIntoDB,
     getAllGearsFromDB,
     getSingleGearFromDB,
 };

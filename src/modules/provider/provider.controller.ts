@@ -4,6 +4,16 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import providerService from './provider.service';
 
+const createGear: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const result = await providerService.createGearIntoDB(req.body, req.user.userId);
+
+    sendResponse(res, {
+        statusCode: httpStatus.CREATED,
+        message: 'Gear created successfully',
+        data: result,
+    });
+});
+
 const getProviderOrders: RequestHandler = catchAsync(async (req: Request, res: Response) => {
     const result = await providerService.getProviderOrdersFromDB(req.user.userId);
 
@@ -43,6 +53,7 @@ const updateGear: RequestHandler = catchAsync(async (req: Request, res: Response
 });
 
 const providerController = {
+    createGear,
     getProviderOrders,
     updateOrderStatus,
     updateGear,

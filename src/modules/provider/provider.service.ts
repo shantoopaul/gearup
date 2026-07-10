@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { prisma } from '../../lib/prisma';
 import type { RentalStatus } from '../../../generated/prisma/client';
-import type { IUpdateGear } from './provider.interface';
+import type { ICreateGear, IUpdateGear } from './provider.interface';
 
 const allowedTransitions: Record<RentalStatus, RentalStatus[]> = {
     PLACED: ['CONFIRMED'],
@@ -11,6 +11,25 @@ const allowedTransitions: Record<RentalStatus, RentalStatus[]> = {
     PICKED_UP: ['RETURNED'],
     RETURNED: [],
     CANCELLED: [],
+};
+
+const createGearIntoDB = async (payload: ICreateGear, providerId: string) => {
+    const category = await prisma.category.findUnique({
+        where: { id: payload.categoryId },
+    });
+
+    if (!category) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Category not found');
+    }
+
+    const gear = await prisma.gearItem.create({
+        data: {
+            ...payload,
+            providerId,
+        },
+    });
+
+    return gear;
 };
 
 const getProviderOrdersFromDB = async (providerId: string) => {
@@ -88,6 +107,7 @@ const updateGearInDB = async (id: string, providerId: string, payload: IUpdateGe
 };
 
 const providerService = {
+    createGearIntoDB,
     getProviderOrdersFromDB,
     updateOrderStatusInDB,
     updateGearInDB,

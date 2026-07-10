@@ -6,6 +6,13 @@ import auth from '../../middlewares/auth';
 
 const router = Router();
 
+router.post(
+    '/gear',
+    auth('PROVIDER'),
+    validateRequest(providerValidation.createGearValidation),
+    providerController.createGear
+);
+
 router.get('/orders', auth('PROVIDER'), providerController.getProviderOrders);
 
 router.patch(
